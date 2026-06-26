@@ -195,7 +195,6 @@
     z-index: 1;
   }
 
-  .header-cta { display: none; }
 
   /* Nav backdrop */
   .nav-backdrop {
@@ -1174,6 +1173,10 @@
 
 /* ─── Utilities ──────────────────────────────────────────── */
 @layer utilities {
+
+  /* Header CTA hidden on mobile — must live in utilities so it beats
+     .button { display: inline-flex } from @layer components */
+  .header-cta { display: none; }
 
   .sr-only {
     position: absolute;
