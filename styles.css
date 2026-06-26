@@ -1,7 +1,7 @@
 :root {
   --ink: #f8f5ff;
-  --canvas: #100d18;
-  --canvas-2: #171121;
+  --canvas: #0a0810;
+  --canvas-2: #110d1a;
   --soft-cloud: rgba(255, 255, 255, 0.08);
   --glass-bg: rgba(255, 255, 255, 0.075);
   --glass-border: rgba(255, 255, 255, 0.16);
@@ -13,9 +13,9 @@
   --cyan: #92f2ff;
   --sale: #ff6d8b;
   --success: #72f2b4;
-  --bg-inner: #5f2fd6;
-  --bg-mid: #251337;
-  --bg-outer: #0c0912;
+  --bg-inner: #4a24aa;
+  --bg-mid: #160b22;
+  --bg-outer: #060409;
   --gutter: clamp(18px, 4vw, 64px);
   --section: clamp(44px, 6vw, 86px);
   --display: "Outfit", "Arial Narrow", sans-serif;
