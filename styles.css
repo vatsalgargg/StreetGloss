@@ -79,7 +79,7 @@
   html {
     overflow-x: hidden;
     scroll-behavior: smooth;
-    background: var(--canvas);
+    background: transparent;
     -webkit-tap-highlight-color: transparent;
   }
 
