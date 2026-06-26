@@ -2,32 +2,47 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StreetGloss | Ceramic Cleaner & Bike Care</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0810" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>StreetGloss | Premium Car Care</title>
     <meta
       name="description"
-      content="StreetGloss makes ceramic cleaner, wash foam, coatings, degreasers, and detailing kits for riders who want deep clean and lasting gloss."
+      content="StreetGloss Premium Car Care — Stealth Coat, Cerami Wash, Sunset Foam, Ocean Wash, Acid Foam, Gloss Max. Professional grade car detailing for a showroom finish."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;900&family=Inter:wght@400;500;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Inter:wght@400;500;700;800&display=optional"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   </head>
   <body>
+
     <div id="bubbles-container" aria-hidden="true"></div>
 
-    <header class="site-header">
-      <a class="brand" href="#" aria-label="StreetGloss home">
+    <!-- Mobile nav overlay -->
+    <div class="nav-backdrop" aria-hidden="true"></div>
+
+    <!-- Mobile drawer -->
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+      <a class="active" href="#home">Home</a>
+      <a href="#products">Shop</a>
+      <a href="#coatings">Coatings</a>
+      <a href="#wash">Wash</a>
+      <a href="#bundles">Bundles</a>
+    </nav>
+
+    <header class="site-header" aria-label="Site header">
+      <a class="brand" href="#home" aria-label="StreetGloss home">
         <span class="brand-mark">SG</span>
         <span>StreetGloss</span>
       </a>
-      <button class="icon-button menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
-        <span></span><span></span>
-      </button>
+
+      <!-- Desktop pill nav -->
       <nav class="primary-nav glass" aria-label="Primary navigation">
         <a class="active" href="#home">Home</a>
         <a href="#products">Shop</a>
@@ -35,19 +50,33 @@
         <a href="#wash">Wash</a>
         <a href="#bundles">Bundles</a>
       </nav>
+
       <div class="header-actions">
         <button class="button button-secondary header-cta" type="button">Find Your Kit</button>
-        <button class="icon-button cart-button" type="button" aria-label="Cart">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 6h15l-1.6 8.1H7.8L6.2 3.5H3" /><path d="M8.4 20.5a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Zm9.2 0a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Z" /></svg>
+        <button class="icon-button cart-button" type="button" aria-label="Cart, 0 items">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.2 6h15l-1.6 8.1H7.8L6.2 3.5H3" />
+            <path d="M8.4 20.5a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Zm9.2 0a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Z" />
+          </svg>
           <span class="cart-count" aria-live="polite">0</span>
+        </button>
+        <button
+          class="icon-button menu-toggle"
+          type="button"
+          aria-label="Open navigation"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+        >
+          <span></span><span></span>
         </button>
       </div>
     </header>
 
     <main>
+      <!-- ── Hero ───────────────────────────── -->
       <section class="hero" id="home" aria-labelledby="hero-title">
-        <div class="ambient ambient-one"></div>
-        <div class="ambient ambient-two"></div>
+        <div class="ambient ambient-one" aria-hidden="true"></div>
+        <div class="ambient ambient-two" aria-hidden="true"></div>
 
         <div class="particle-layer particle-layer-bg" aria-hidden="true">
           <span class="particle foam p7"></span>
@@ -57,31 +86,33 @@
         </div>
 
         <div class="hero-content">
+
+          <!-- Left: Text + CTAs -->
           <div class="hero-left">
-            <h1 id="hero-title">
-              Ceramic<br />
-              Cleaner
-            </h1>
+            <h1 id="hero-title">Premium<br />Car Care</h1>
             <p>
-              A slick purple-tuned cleaner for ceramic-coated bikes. Break down road film, lift grime,
-              and leave panels ready for a sharp gloss finish.
+              Professional-grade formulas for a showroom finish. Deep clean,
+              lasting protection, and a gloss that turns heads every drive.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#products">Shop Ceramic Cleaner <span>+</span></a>
-              <a class="button button-secondary" href="#coatings">Explore Coatings</a>
+              <a class="button button-primary" href="#products">Shop Now <span>+</span></a>
+              <a class="button button-secondary" href="#coatings">Explore Range</a>
             </div>
             <div class="award-badge glass">
               <div class="award-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9L12 3Z" /></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3l2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9L12 3Z" />
+                </svg>
               </div>
               <div>
-                <span>Hero Product</span>
-                <strong>Graphene Ceramic Cleaner</strong>
+                <span>Best Seller</span>
+                <strong>Gloss Max Universal Polish</strong>
               </div>
             </div>
           </div>
 
-          <div class="hero-center" aria-label="Animated StreetGloss ceramic cleaner product">
+          <!-- Centre: 3-D bottle -->
+          <div class="hero-center" aria-label="StreetGloss Gloss Max product visual">
             <div class="product-orbit">
               <div class="product-glow"></div>
               <div class="hero-product" id="hero-product">
@@ -91,8 +122,8 @@
                   <div class="bottle-shine"></div>
                   <div class="bottle-label">
                     <span>StreetGloss</span>
-                    <strong>Ceramic<br />Cleaner</strong>
-                    <em>SiO2 gloss prep / 500ml</em>
+                    <strong>Gloss<br />Max</strong>
+                    <em>Universal Polish / 200ml</em>
                   </div>
                 </div>
                 <div class="bottle-base"></div>
@@ -109,140 +140,157 @@
             <span class="particle droplet p6"></span>
           </div>
 
-          <aside class="hero-right">
+          <!-- Right: variant panel + side title (desktop only) -->
+          <aside class="hero-right" aria-label="Product variants">
             <div class="variant-panel">
               <button class="variant-card active" type="button" data-theme="ceramic">
                 <span class="mini-bottle purple"></span>
-                <span>Ceramic Cleaner</span>
-                <strong>$24.00</strong>
+                <span>Gloss Max</span>
+                <strong>₹599</strong>
               </button>
               <button class="variant-card" type="button" data-theme="foam">
                 <span class="mini-bottle silver"></span>
-                <span>Wash Foam</span>
-                <strong>$18.00</strong>
+                <span>Cerami Wash</span>
+                <strong>₹499</strong>
               </button>
             </div>
-            <div class="side-title">
-              <span>Clean</span>
-              <strong>Gloss</strong>
+            <div class="side-title" aria-hidden="true">
+              <span>Drive</span>
+              <strong>Shine</strong>
             </div>
           </aside>
         </div>
       </section>
 
+      <!-- ── Category strip ─────────────────── -->
       <section class="category-strip" aria-label="Product categories">
-        <a class="category-item glass" href="#coatings">
-          <span class="image-slot">Coating Visual</span>
-          <span>Ceramic Coating <b>→</b></span>
+        <a class="category-item glass" href="#products">
+          <span class="image-slot cat-coat" aria-hidden="true">Coat</span>
+          <span>Coatings &amp; Polish <b>→</b></span>
         </a>
-        <a class="category-item glass" href="#wash">
-          <span class="image-slot">Foam Visual</span>
-          <span>Wash Foam <b>→</b></span>
+        <a class="category-item glass" href="#products">
+          <span class="image-slot cat-wash" aria-hidden="true">Wash</span>
+          <span>Shampoos <b>→</b></span>
         </a>
-        <a class="category-item glass" href="#cleaners">
-          <span class="image-slot">Cleaner Visual</span>
-          <span>Chain Degreaser <b>→</b></span>
+        <a class="category-item glass" href="#products">
+          <span class="image-slot cat-foam" aria-hidden="true">Foam</span>
+          <span>Foam Washes <b>→</b></span>
         </a>
-        <a class="category-item glass" href="#bundles">
-          <span class="image-slot">Kit Visual</span>
-          <span>Detailing Kits <b>→</b></span>
+        <a class="category-item glass" href="#products">
+          <span class="image-slot cat-polish" aria-hidden="true">Polish</span>
+          <span>Universal Polish <b>→</b></span>
         </a>
       </section>
 
+      <!-- ── Products ───────────────────────── -->
       <section class="product-section" id="products" aria-labelledby="best-sellers-title">
         <div class="section-heading">
           <h2 id="best-sellers-title">Best Sellers</h2>
-          <div class="filter-chips" aria-label="Product filters">
-            <button class="chip is-active" type="button" data-filter="all">All</button>
-            <button class="chip" type="button" data-filter="coating">Coatings</button>
-            <button class="chip" type="button" data-filter="wash">Wash</button>
-            <button class="chip" type="button" data-filter="kit">Kits</button>
+          <!-- Horizontally scrollable chips on mobile -->
+          <div class="filter-scroll" role="group" aria-label="Product filters">
+            <div class="filter-chips">
+              <button class="chip is-active" type="button" data-filter="all">All</button>
+              <button class="chip" type="button" data-filter="coat">Coat</button>
+              <button class="chip" type="button" data-filter="wash">Wash</button>
+              <button class="chip" type="button" data-filter="foam">Foam</button>
+              <button class="chip" type="button" data-filter="polish">Polish</button>
+            </div>
           </div>
         </div>
 
         <div class="product-grid">
-          <article class="product-card" data-category="coating" data-name="StreetGloss Ceramic Cleaner">
-            <div class="product-visual purple-product"><span>Ceramic Cleaner</span></div>
-            <h3>StreetGloss Ceramic Cleaner</h3>
-            <p>500ml SiO2 prep cleaner</p>
-            <strong>$24.00</strong>
+          <article class="product-card" data-category="coat" data-name="Stealth Coat">
+            <div class="product-visual pv-stealth"><span>Stealth Coat</span></div>
+            <h3>Stealth Coat</h3>
+            <p>Matte finish protectant · 200ml</p>
+            <strong>₹699</strong>
             <button class="button button-primary add-cart" type="button">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="coating" data-name="StreetGloss Ceramic Coating">
-            <div class="product-visual"><span>Ceramic Coating</span></div>
-            <h3>StreetGloss Ceramic Coating</h3>
-            <p>50ml hydrophobic sealant</p>
-            <strong><span class="sale">$49.00</span> <del>$64.00</del></strong>
+          <article class="product-card" data-category="wash" data-name="Cerami Wash">
+            <div class="product-visual pv-cerami"><span>Cerami Wash</span></div>
+            <h3>Cerami Wash</h3>
+            <p>Ceramic infused shampoo · 200ml</p>
+            <strong>₹499</strong>
             <button class="button button-primary add-cart" type="button">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="wash" data-name="StreetGloss Wash Foam">
-            <div class="product-visual"><span>Wash Foam</span></div>
-            <h3>StreetGloss Wash Foam</h3>
-            <p>1L snow foam concentrate</p>
-            <strong>$18.00</strong>
+          <article class="product-card" data-category="foam" data-name="Sunset Foam">
+            <div class="product-visual pv-sunset"><span>Sunset Foam</span></div>
+            <h3>Sunset Foam</h3>
+            <p>Citrus thick foam shampoo · 200ml</p>
+            <strong><span class="sale">₹449</span> <del>₹549</del></strong>
             <button class="button button-primary add-cart" type="button">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="wash" data-name="StreetGloss Chain Degreaser">
-            <div class="product-visual"><span>Chain Degreaser</span></div>
-            <h3>StreetGloss Chain Degreaser</h3>
-            <p>500ml drivetrain cleaner</p>
-            <strong>$16.00</strong>
+          <article class="product-card" data-category="foam" data-name="Ocean Wash">
+            <div class="product-visual pv-ocean"><span>Ocean Wash</span></div>
+            <h3>Ocean Wash</h3>
+            <p>Premium foam shampoo · 200ml</p>
+            <strong>₹449</strong>
             <button class="button button-primary add-cart" type="button">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="kit" data-name="StreetGloss Detail Kit">
-            <div class="product-visual"><span>Detail Kit</span></div>
-            <h3>StreetGloss Detail Kit</h3>
-            <p>Cleaner, foam, towels, brush</p>
-            <strong><span class="sale">$69.00</span> <del>$89.00</del></strong>
+          <article class="product-card" data-category="foam" data-name="Acid Foam">
+            <div class="product-visual pv-acid"><span>Acid Foam</span></div>
+            <h3>Acid Foam</h3>
+            <p>pH-balanced foam shampoo · 200ml</p>
+            <strong>₹499</strong>
+            <button class="button button-primary add-cart" type="button">Add to Bag</button>
+          </article>
+          <article class="product-card" data-category="polish" data-name="Gloss Max">
+            <div class="product-visual pv-gloss"><span>Gloss Max</span></div>
+            <h3>Gloss Max</h3>
+            <p>Universal polish · 200ml</p>
+            <strong><span class="sale">₹599</span> <del>₹749</del></strong>
             <button class="button button-primary add-cart" type="button">Add to Bag</button>
           </article>
         </div>
       </section>
 
+      <!-- ── Campaign tiles ─────────────────── -->
       <section class="campaign-grid" aria-label="Featured products">
         <article class="campaign-tile" id="coatings">
-          <div class="campaign-media"><span>Gloss Protection Visual</span></div>
+          <div class="campaign-media cm-stealth" aria-hidden="true"><span>Stealth Coat + Gloss Max</span></div>
           <div class="campaign-copy">
-            <h2>Coat The Finish</h2>
-            <p>Water-beading protection with a smooth, high-gloss feel.</p>
+            <h2>Protect The Finish</h2>
+            <p>Stealth Coat locks in a matte shield. Gloss Max cuts, shines, and polishes every surface.</p>
             <a class="button button-primary" href="#products">Shop Coatings</a>
           </div>
         </article>
         <article class="campaign-tile" id="wash">
-          <div class="campaign-media"><span>Foam Wash Visual</span></div>
+          <div class="campaign-media cm-foam" aria-hidden="true"><span>Sunset Foam + Ocean Wash</span></div>
           <div class="campaign-copy">
-            <h2>Foam The Grime</h2>
-            <p>Thick wash foam built for daily riders and weekend restorers.</p>
+            <h2>Lather. Rinse. Shine.</h2>
+            <p>Sunset Foam and Ocean Wash deliver thick, spot-free lather for a showroom clean every time.</p>
             <a class="button button-primary" href="#products">Shop Wash</a>
           </div>
         </article>
       </section>
 
+      <!-- ── Wide story ─────────────────────── -->
       <section class="wide-story" id="bundles">
-        <h2>Black chrome energy. Purple gloss finish.</h2>
-        <p>StreetGloss is built for riders who want their bike to look expensive after every clean.</p>
-        <a class="button button-primary" href="#products">Build Your Kit</a>
+        <h2>Complete Care. Maximum Shine.</h2>
+        <p>StreetGloss is built for drivers who refuse to compromise. 6 professional-grade formulas — one perfect finish.</p>
+        <a class="button button-primary" href="#products">Shop Full Range</a>
       </section>
     </main>
 
+    <!-- ── Footer ────────────────────────────── -->
     <footer class="site-footer">
       <div>
         <h2>StreetGloss</h2>
-        <p>Performance care for your bike. Clean deeper. Protect longer. Ride better.</p>
+        <p>Premium car care. Clean deeper. Protect longer. Drive with pride.</p>
       </div>
       <div>
         <h3>Shop</h3>
         <a href="#products">All Products</a>
         <a href="#wash">Wash</a>
         <a href="#coatings">Coatings</a>
-        <a href="#bundles">Kits & Bundles</a>
+        <a href="#bundles">Kits &amp; Bundles</a>
       </div>
       <form class="newsletter">
         <h3>Stay In The Gloss</h3>
         <p>Get drops, detailing tips, and launch offers.</p>
         <label>
           <span class="sr-only">Email address</span>
-          <input type="email" placeholder="Enter your email" required />
+          <input type="email" placeholder="Enter your email" autocomplete="email" required />
         </label>
         <button class="button button-primary" type="submit">Subscribe</button>
         <p class="form-note" aria-live="polite"></p>
