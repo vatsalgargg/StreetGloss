@@ -417,11 +417,11 @@ main {
 }
 
 .hero-center {
-  position: fixed;
-  inset: 0;
-  z-index: 42;
-  display: grid;
-  place-items: center;
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
   opacity: 1;
   animation: product-float 6s ease-in-out infinite;
@@ -449,16 +449,13 @@ main {
 }
 
 .product-orbit {
-  position: fixed;
-  top: 52vh;
-  left: 52vw;
+  position: relative;
   display: grid;
   place-items: center;
   width: min(42vw, 560px);
   min-width: 340px;
   aspect-ratio: 1;
   perspective: 1200px;
-  transform: translate(-50%, -50%);
 }
 
 .product-glow {
