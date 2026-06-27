@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0810" />
+    <!-- Security headers (supplement server-level headers) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>StreetGloss | Premium Car Care</title>
@@ -18,7 +21,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OJ9I0drAgLVZzozny1ISrVYhMEeaHUFStwqOLK/j78Q==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
   </head>
   <body>
 
@@ -34,6 +37,7 @@
       <a href="#coatings">Coatings</a>
       <a href="#wash">Wash</a>
       <a href="#bundles">Bundles</a>
+      <a href="#" id="mob-contact-link">Contact</a>
     </nav>
 
     <header class="site-header" aria-label="Site header">
@@ -49,11 +53,12 @@
         <a href="#coatings">Coatings</a>
         <a href="#wash">Wash</a>
         <a href="#bundles">Bundles</a>
+        <a href="#" id="desk-contact-link">Contact</a>
       </nav>
 
       <div class="header-actions">
-        <button class="button button-secondary header-cta" type="button">Find Your Kit</button>
-        <button class="icon-button cart-button" type="button" aria-label="Cart, 0 items">
+        <button class="button button-secondary header-cta" type="button" id="find-kit-btn">Find Your Kit</button>
+        <button class="icon-button cart-button" type="button" aria-label="Cart, 0 items" id="cart-open-btn">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6.2 6h15l-1.6 8.1H7.8L6.2 3.5H3" />
             <path d="M8.4 20.5a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Zm9.2 0a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8Z" />
@@ -186,7 +191,6 @@
       <section class="product-section" id="products" aria-labelledby="best-sellers-title">
         <div class="section-heading">
           <h2 id="best-sellers-title">Best Sellers</h2>
-          <!-- Horizontally scrollable chips on mobile -->
           <div class="filter-scroll" role="group" aria-label="Product filters">
             <div class="filter-chips">
               <button class="chip is-active" type="button" data-filter="all">All</button>
@@ -199,47 +203,47 @@
         </div>
 
         <div class="product-grid">
-          <article class="product-card" data-category="coat" data-name="Stealth Coat">
+          <article class="product-card" data-category="coat" data-product-id="stealth-coat" tabindex="0" role="button" aria-label="View Stealth Coat details">
             <div class="product-visual pv-stealth"><span>Stealth Coat</span></div>
             <h3>Stealth Coat</h3>
             <p>Matte finish protectant · 200ml</p>
             <strong>₹699</strong>
-            <button class="button button-primary add-cart" type="button">Add to Bag</button>
+            <button class="button button-primary add-cart" type="button" data-product-id="stealth-coat">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="wash" data-name="Cerami Wash">
+          <article class="product-card" data-category="wash" data-product-id="cerami-wash" tabindex="0" role="button" aria-label="View Cerami Wash details">
             <div class="product-visual pv-cerami"><span>Cerami Wash</span></div>
             <h3>Cerami Wash</h3>
             <p>Ceramic infused shampoo · 200ml</p>
             <strong>₹499</strong>
-            <button class="button button-primary add-cart" type="button">Add to Bag</button>
+            <button class="button button-primary add-cart" type="button" data-product-id="cerami-wash">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="foam" data-name="Sunset Foam">
+          <article class="product-card" data-category="foam" data-product-id="sunset-foam" tabindex="0" role="button" aria-label="View Sunset Foam details">
             <div class="product-visual pv-sunset"><span>Sunset Foam</span></div>
             <h3>Sunset Foam</h3>
             <p>Citrus thick foam shampoo · 200ml</p>
             <strong><span class="sale">₹449</span> <del>₹549</del></strong>
-            <button class="button button-primary add-cart" type="button">Add to Bag</button>
+            <button class="button button-primary add-cart" type="button" data-product-id="sunset-foam">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="foam" data-name="Ocean Wash">
+          <article class="product-card" data-category="foam" data-product-id="ocean-wash" tabindex="0" role="button" aria-label="View Ocean Wash details">
             <div class="product-visual pv-ocean"><span>Ocean Wash</span></div>
             <h3>Ocean Wash</h3>
             <p>Premium foam shampoo · 200ml</p>
             <strong>₹449</strong>
-            <button class="button button-primary add-cart" type="button">Add to Bag</button>
+            <button class="button button-primary add-cart" type="button" data-product-id="ocean-wash">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="foam" data-name="Acid Foam">
+          <article class="product-card" data-category="foam" data-product-id="acid-foam" tabindex="0" role="button" aria-label="View Acid Foam details">
             <div class="product-visual pv-acid"><span>Acid Foam</span></div>
             <h3>Acid Foam</h3>
             <p>pH-balanced foam shampoo · 200ml</p>
             <strong>₹499</strong>
-            <button class="button button-primary add-cart" type="button">Add to Bag</button>
+            <button class="button button-primary add-cart" type="button" data-product-id="acid-foam">Add to Bag</button>
           </article>
-          <article class="product-card" data-category="polish" data-name="Gloss Max">
+          <article class="product-card" data-category="polish" data-product-id="gloss-max" tabindex="0" role="button" aria-label="View Gloss Max details">
             <div class="product-visual pv-gloss"><span>Gloss Max</span></div>
             <h3>Gloss Max</h3>
             <p>Universal polish · 200ml</p>
             <strong><span class="sale">₹599</span> <del>₹749</del></strong>
-            <button class="button button-primary add-cart" type="button">Add to Bag</button>
+            <button class="button button-primary add-cart" type="button" data-product-id="gloss-max">Add to Bag</button>
           </article>
         </div>
       </section>
@@ -277,6 +281,7 @@
       <div>
         <h2>StreetGloss</h2>
         <p>Premium car care. Clean deeper. Protect longer. Drive with pride.</p>
+        <p class="footer-email">📧 <a href="mailto:support@streetgloss.in">support@streetgloss.in</a></p>
       </div>
       <div>
         <h3>Shop</h3>
@@ -284,6 +289,13 @@
         <a href="#wash">Wash</a>
         <a href="#coatings">Coatings</a>
         <a href="#bundles">Kits &amp; Bundles</a>
+      </div>
+      <div>
+        <h3>Support</h3>
+        <a href="#" id="contact-link">Contact Us</a>
+        <a href="#" id="bug-report-link">Report a Bug</a>
+        <a href="#" id="privacy-link">Privacy Policy</a>
+        <a href="#" id="terms-link">Terms &amp; Conditions</a>
       </div>
       <form class="newsletter">
         <h3>Stay In The Gloss</h3>
@@ -297,10 +309,344 @@
       </form>
       <div class="legal">
         <span>© 2026 StreetGloss. All rights reserved.</span>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
+        <a href="#" id="privacy-link-2">Privacy</a>
+        <a href="#" id="terms-link-2">Terms</a>
       </div>
     </footer>
+
+    <!-- ══════════════════════════════════════
+         CART DRAWER
+    ═══════════════════════════════════════ -->
+    <div class="cart-overlay" id="cart-overlay" aria-hidden="true"></div>
+    <aside class="cart-drawer" id="cart-drawer" aria-label="Shopping cart" aria-hidden="true">
+      <div class="cart-header">
+        <h2>Your Bag <span class="cart-header-count">0</span></h2>
+        <button class="icon-button cart-close-btn" id="cart-close-btn" aria-label="Close cart">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="cart-items" id="cart-items">
+        <div class="cart-empty" id="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <p>Your bag is empty</p>
+          <span>Add some products to get started!</span>
+        </div>
+      </div>
+      <div class="cart-footer" id="cart-footer">
+        <div class="cart-total-row">
+          <span>Subtotal</span>
+          <strong id="cart-total">₹0</strong>
+        </div>
+        <div class="cart-total-row cart-shipping">
+          <span>Shipping</span>
+          <span class="free-shipping">FREE</span>
+        </div>
+        <div class="cart-total-row cart-grand">
+          <span>Total</span>
+          <strong id="cart-grand-total">₹0</strong>
+        </div>
+        <button class="button button-primary cart-checkout-btn" id="checkout-btn" type="button">Checkout →</button>
+        <p class="cart-secure-note">🔒 Secure checkout · Free returns</p>
+      </div>
+    </aside>
+
+    <!-- Checkout Success Modal -->
+    <div class="modal-overlay" id="checkout-success-overlay" aria-hidden="true">
+      <div class="modal-box success-box" role="dialog" aria-modal="true" aria-labelledby="checkout-success-title">
+        <div class="success-icon">✅</div>
+        <h2 id="checkout-success-title">Order Placed!</h2>
+        <p>Thank you for your order. We'll send a confirmation to your email shortly.</p>
+        <p class="order-id">Order #SG-<span id="order-num"></span></p>
+        <button class="button button-primary" id="checkout-success-close">Continue Shopping</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PRODUCT DETAIL MODAL
+    ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="product-overlay" aria-hidden="true">
+      <div class="modal-box product-modal-box" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
+        <button class="modal-close" id="product-modal-close" aria-label="Close product details">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <div class="product-modal-inner">
+          <div class="product-modal-visual" id="product-modal-visual"></div>
+          <div class="product-modal-info">
+            <div class="product-modal-badge" id="product-modal-badge">Bestseller</div>
+            <h2 id="product-modal-title">Product Name</h2>
+            <p class="product-modal-tagline" id="product-modal-tagline"></p>
+            <div class="product-modal-price" id="product-modal-price"></div>
+            <div class="product-modal-rating">
+              <span class="stars">★★★★★</span>
+              <span id="product-modal-rating-text">4.8 (312 reviews)</span>
+            </div>
+            <div class="product-modal-desc" id="product-modal-desc"></div>
+            <div class="product-modal-specs" id="product-modal-specs"></div>
+            <div class="product-modal-actions">
+              <div class="qty-control">
+                <button class="qty-btn" id="qty-minus" aria-label="Decrease quantity">−</button>
+                <span id="modal-qty">1</span>
+                <button class="qty-btn" id="qty-plus" aria-label="Increase quantity">+</button>
+              </div>
+              <button class="button button-primary product-modal-add-btn" id="product-modal-add-btn" type="button">Add to Bag</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         CONTACT / SUPPORT MODAL
+    ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="contact-overlay" aria-hidden="true">
+      <div class="modal-box contact-modal-box" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+        <button class="modal-close" id="contact-modal-close" aria-label="Close contact form">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <div class="contact-modal-header">
+          <div class="contact-icon">💬</div>
+          <h2 id="contact-modal-title">Get In Touch</h2>
+          <p>We typically reply within 24 hours · <a href="mailto:support@streetgloss.in">support@streetgloss.in</a></p>
+        </div>
+        <form class="contact-form" id="contact-form" novalidate>
+          <div class="form-row">
+            <label>
+              <span>Your Name</span>
+              <input type="text" name="name" placeholder="e.g. Arjun Sharma" required maxlength="100" autocomplete="name" />
+            </label>
+            <label>
+              <span>Email Address</span>
+              <input type="email" name="email" placeholder="you@example.com" required maxlength="254" autocomplete="email" />
+            </label>
+          </div>
+          <label>
+            <span>Subject</span>
+            <select name="subject" id="contact-subject">
+              <option value="">Select a topic…</option>
+              <option value="order">Order / Shipping</option>
+              <option value="product">Product Question</option>
+              <option value="returns">Returns &amp; Refunds</option>
+              <option value="wholesale">Wholesale Enquiry</option>
+              <option value="bug">🐛 Bug Report</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label id="bug-details-label" style="display:none">
+            <span>Steps to Reproduce the Bug</span>
+            <input type="text" name="bug-steps" placeholder="e.g. Click Add to Bag → page freezes" maxlength="500" />
+          </label>
+          <label>
+            <span>Message</span>
+            <textarea name="message" rows="4" placeholder="Tell us how we can help…" required maxlength="2000"></textarea>
+          </label>
+          <button class="button button-primary" type="submit" id="contact-submit">Send Message →</button>
+          <p class="form-note" id="contact-form-note" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PRIVACY POLICY MODAL
+    ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="privacy-overlay" aria-hidden="true">
+      <div class="modal-box legal-modal-box" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+        <button class="modal-close" id="privacy-modal-close" aria-label="Close privacy policy">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <div class="legal-content">
+          <div class="legal-header">
+            <span class="legal-icon">🔒</span>
+            <h2 id="privacy-title">Privacy Policy</h2>
+            <p class="legal-date">Last updated: 1 June 2026</p>
+          </div>
+          <div class="legal-body">
+            <h3>1. Who We Are</h3>
+            <p>StreetGloss ("we", "our", "us") is a premium car care brand operated by StreetGloss India Pvt. Ltd., registered at 14B, Industrial Estate, Pune, Maharashtra 411019, India. Contact: <a href="mailto:support@streetgloss.in">support@streetgloss.in</a>.</p>
+
+            <h3>2. Information We Collect</h3>
+            <p>We collect information you provide directly to us, such as:</p>
+            <ul>
+              <li><strong>Account information:</strong> Name, email address, phone number when you create an account.</li>
+              <li><strong>Order information:</strong> Billing address, shipping address, payment method details (processed securely via Razorpay/Stripe — we do not store card numbers).</li>
+              <li><strong>Communications:</strong> Messages you send us via our contact form or email.</li>
+              <li><strong>Usage data:</strong> Pages visited, products viewed, browser type, IP address, and device type collected automatically.</li>
+            </ul>
+
+            <h3>3. How We Use Your Information</h3>
+            <p>We use your information to:</p>
+            <ul>
+              <li>Process and fulfil your orders</li>
+              <li>Send order confirmations and shipping updates</li>
+              <li>Respond to your questions and support requests</li>
+              <li>Send promotional emails if you have opted in (you can unsubscribe at any time)</li>
+              <li>Improve our website and product range</li>
+              <li>Comply with legal obligations</li>
+            </ul>
+
+            <h3>4. Cookies &amp; Tracking</h3>
+            <p>We use essential cookies to keep your cart session active, and optional analytics cookies (Google Analytics) to understand how visitors use our site. You can manage cookie preferences through our cookie banner. For users in the EU/EEA, we obtain consent before setting non-essential cookies in compliance with GDPR.</p>
+
+            <h3>5. Data Sharing</h3>
+            <p>We do <strong>not</strong> sell your personal data. We may share data with:</p>
+            <ul>
+              <li>Shipping partners (Delhivery, BlueDart) — to deliver your orders</li>
+              <li>Payment processors (Razorpay) — to process payments</li>
+              <li>Analytics providers (Google) — under data processing agreements</li>
+            </ul>
+
+            <h3>6. Data Retention</h3>
+            <p>We retain your personal data for as long as your account is active, and for up to 7 years afterwards to comply with Indian tax law (GST). You may request deletion of your account data at any time.</p>
+
+            <h3>7. Your Rights</h3>
+            <p>Depending on your location, you may have rights to access, correct, delete, or export your data. To exercise your rights, email <a href="mailto:privacy@streetgloss.in">privacy@streetgloss.in</a>. EU/EEA residents may also lodge a complaint with their local Data Protection Authority.</p>
+
+            <h3>8. Security</h3>
+            <p>We use industry-standard encryption (TLS 1.3) and security practices to protect your data. However, no online system is 100% secure and we cannot guarantee absolute security.</p>
+
+            <h3>9. Changes to This Policy</h3>
+            <p>We may update this policy periodically. We'll notify registered users by email of material changes. Continued use of our website after changes constitutes acceptance.</p>
+
+            <h3>10. Contact</h3>
+            <p>For privacy questions: <a href="mailto:privacy@streetgloss.in">privacy@streetgloss.in</a> | StreetGloss India Pvt. Ltd., Pune, Maharashtra.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         TERMS & CONDITIONS MODAL
+    ═══════════════════════════════════════ -->
+    <div class="modal-overlay" id="terms-overlay" aria-hidden="true">
+      <div class="modal-box legal-modal-box" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+        <button class="modal-close" id="terms-modal-close" aria-label="Close terms and conditions">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <div class="legal-content">
+          <div class="legal-header">
+            <span class="legal-icon">📋</span>
+            <h2 id="terms-title">Terms &amp; Conditions</h2>
+            <p class="legal-date">Last updated: 1 June 2026</p>
+          </div>
+          <div class="legal-body">
+            <h3>1. Acceptance of Terms</h3>
+            <p>By accessing or purchasing from StreetGloss (streetgloss.in), you agree to be bound by these Terms &amp; Conditions. If you do not agree, please do not use our website.</p>
+
+            <h3>2. Products &amp; Pricing</h3>
+            <p>All prices are in Indian Rupees (₹) and are inclusive of applicable GST. We reserve the right to change prices at any time without prior notice. Product availability is subject to stock levels.</p>
+
+            <h3>3. Orders &amp; Payment</h3>
+            <p>Placing an order constitutes an offer to buy the specified products. We reserve the right to refuse or cancel orders for reasons including unavailability, pricing errors, or suspected fraud. Payment is due at the time of order. We accept UPI, cards, net banking, and wallets via Razorpay.</p>
+
+            <h3>4. Shipping &amp; Delivery</h3>
+            <p>We ship across India. Standard delivery takes 4–7 business days; express delivery takes 1–2 business days. Shipping is free for orders above ₹999. We are not responsible for delays caused by courier partners or circumstances beyond our control.</p>
+
+            <h3>5. Returns &amp; Refunds</h3>
+            <p>We offer a 7-day return policy from the date of delivery for unopened, unused products in original packaging. To initiate a return, email <a href="mailto:returns@streetgloss.in">returns@streetgloss.in</a> with your order ID. Refunds are processed within 5–7 business days of receiving the returned item.</p>
+
+            <h3>6. Product Use</h3>
+            <p>StreetGloss products are intended for automotive exterior use only. Always read the label and follow instructions. Keep out of reach of children. We are not liable for damage resulting from improper use or application.</p>
+
+            <h3>7. Intellectual Property</h3>
+            <p>All content on this website including logos, product images, descriptions, and branding is owned by StreetGloss India Pvt. Ltd. and protected under Indian copyright law. You may not reproduce, distribute, or commercially exploit any content without written permission.</p>
+
+            <h3>8. Limitation of Liability</h3>
+            <p>To the maximum extent permitted by law, StreetGloss shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or website. Our total liability shall not exceed the value of your order.</p>
+
+            <h3>9. Governing Law</h3>
+            <p>These Terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Pune, Maharashtra.</p>
+
+            <h3>10. Contact</h3>
+            <p>For queries: <a href="mailto:support@streetgloss.in">support@streetgloss.in</a> | StreetGloss India Pvt. Ltd., 14B Industrial Estate, Pune 411019.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         COOKIE CONSENT BANNER
+    ═══════════════════════════════════════ -->
+    <div class="cookie-banner" id="cookie-banner" aria-live="polite" role="region" aria-label="Cookie consent">
+      <div class="cookie-content">
+        <span class="cookie-icon">🍪</span>
+        <div class="cookie-text">
+          <strong>We use cookies</strong>
+          <p>We use essential cookies to keep your cart working, and optional analytics cookies to improve our site. See our <a href="#" id="cookie-privacy-link">Privacy Policy</a>.</p>
+        </div>
+      </div>
+      <div class="cookie-actions">
+        <button class="button button-secondary cookie-manage-btn" id="cookie-manage-btn" type="button">Manage</button>
+        <button class="button button-primary cookie-accept-btn" id="cookie-accept-btn" type="button">Accept All</button>
+      </div>
+    </div>
+
+    <!-- Cookie Manage Modal -->
+    <div class="modal-overlay" id="cookie-manage-overlay" aria-hidden="true">
+      <div class="modal-box cookie-manage-box" role="dialog" aria-modal="true" aria-labelledby="cookie-manage-title">
+        <button class="modal-close" id="cookie-manage-close" aria-label="Close cookie settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <h2 id="cookie-manage-title">🍪 Cookie Preferences</h2>
+        <p>Choose which cookies you'd like to allow.</p>
+        <div class="cookie-toggle-list">
+          <div class="cookie-toggle-item">
+            <div>
+              <strong>Essential Cookies</strong>
+              <span>Required for the site to function — cart, session, security.</span>
+            </div>
+            <div class="toggle-switch always-on" aria-label="Essential cookies always on">
+              <span>Always On</span>
+            </div>
+          </div>
+          <div class="cookie-toggle-item">
+            <div>
+              <strong>Analytics Cookies</strong>
+              <span>Help us understand how visitors use the site (Google Analytics).</span>
+            </div>
+            <label class="toggle-switch" for="analytics-toggle">
+              <input type="checkbox" id="analytics-toggle" checked />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+          <div class="cookie-toggle-item">
+            <div>
+              <strong>Marketing Cookies</strong>
+              <span>Used to serve relevant ads and track campaign performance.</span>
+            </div>
+            <label class="toggle-switch" for="marketing-toggle">
+              <input type="checkbox" id="marketing-toggle" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+        </div>
+        <button class="button button-primary" id="cookie-save-btn" type="button">Save Preferences</button>
+      </div>
+    </div>
+
+    <!-- Find Your Kit Modal -->
+    <div class="modal-overlay" id="kit-overlay" aria-hidden="true">
+      <div class="modal-box kit-modal-box" role="dialog" aria-modal="true" aria-labelledby="kit-modal-title">
+        <button class="modal-close" id="kit-modal-close" aria-label="Close kit finder">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <div class="kit-modal-content" id="kit-modal-content">
+          <!-- Dynamically filled by JS -->
+        </div>
+      </div>
+    </div>
 
     <div class="toast" role="status" aria-live="polite"></div>
     <script src="script.js"></script>
