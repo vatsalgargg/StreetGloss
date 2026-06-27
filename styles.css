@@ -94,7 +94,6 @@
     font-size: clamp(14px, 3.8vw, 16px);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    transition: background var(--t-lg) var(--ease-snap);
   }
 
   body.foam-theme {
@@ -129,10 +128,8 @@
   }
 
   .site-header.is-scrolled {
-    background: rgba(8, 6, 14, 0.88);
+    background: rgba(8, 6, 16, 0.96);
     border-bottom: 1px solid var(--line);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
   }
 
   /* Brand */
@@ -461,7 +458,7 @@
     gap: 10px;
   }
 
-  /* ─── Campaign grid ─── */
+  /* ─── Campaign grid — below fold, skip render until near viewport ─── */
   .campaign-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -470,9 +467,11 @@
     padding-top: var(--section-gap);
     max-width: var(--max-w);
     margin: 0 auto;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 600px;
   }
 
-  /* ─── Wide story ─── */
+  /* ─── Wide story — below fold ─── */
   .wide-story {
     display: grid;
     justify-items: start;
@@ -485,6 +484,8 @@
     background:
       radial-gradient(circle at 76% 38%, rgba(240,182,255,0.16), transparent 38%),
       linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+    content-visibility: auto;
+    contain-intrinsic-size: 0 300px;
   }
 
   .wide-story p {
@@ -568,13 +569,12 @@
     100% { opacity: 0; transform: translateY(-112vh) translateX(26px) rotate(360deg); }
   }
 
-  /* Glass card */
+  /* Glass card — backdrop-filter removed: it blurs animated content behind it every frame.
+     Replaced with a slightly more opaque solid background that looks identical in dark mode. */
   .glass {
     border: 1px solid var(--glass-border);
-    background: var(--glass-bg);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.11), 0 14px 44px rgba(0,0,0,0.14);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(14, 10, 24, 0.88);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.11), 0 14px 44px rgba(0,0,0,0.22);
   }
 
   /* ─── Buttons ─── */
@@ -724,6 +724,9 @@
 
   @keyframes pulse-glow { 50% { transform: scale(1.1); opacity: 0.78; } }
 
+  /* hero-product: removed filter:drop-shadow — it's the single most expensive CSS op
+     when combined with 3D transforms and will-change:transform (forces off-screen raster + composite).
+     Shadow effect is now handled by .product-glow below the bottle. */
   .hero-product {
     position: relative;
     width: min(190px, 38vw);
@@ -736,8 +739,6 @@
       radial-gradient(circle at 52% 18%, rgba(240,182,255,0.36), transparent 34%),
       linear-gradient(90deg, #0c0810, #241437 18%, #9a67ff 50%, #351c52 78%, #08060d);
     transform-style: preserve-3d;
-    transform: rotateZ(-8deg);
-    filter: drop-shadow(0 36px 46px rgba(0,0,0,0.5));
     box-shadow:
       inset 16px 0 28px rgba(255,255,255,0.08),
       inset -18px 0 32px rgba(0,0,0,0.38),
@@ -783,6 +784,8 @@
     box-shadow: inset 16px 0 28px rgba(255,255,255,0.08), inset -18px 0 32px rgba(0,0,0,0.38);
   }
 
+  /* bottle-shine: will-change promotes it to its own GPU layer so translateX
+     inside overflow:hidden is compositor-clipped, not CPU-painted */
   .bottle-shine {
     position: absolute;
     top: -12%;
@@ -791,6 +794,7 @@
     height: 126%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
     transform: rotate(18deg);
+    will-change: transform;
     animation: shine 5.6s ease-in-out infinite;
   }
 
@@ -799,6 +803,7 @@
     68%, 100% { transform: translateX(360%) rotate(18deg); }
   }
 
+  /* bottle-label: removed backdrop-filter — it's inside the 3D-transformed bottle */
   .bottle-label {
     position: absolute;
     left: 13px;
@@ -809,10 +814,8 @@
     padding: 14px 12px;
     border: 1px solid rgba(255,255,255,0.18);
     border-radius: 20px;
-    background: rgba(8,6,12,0.62);
+    background: rgba(8,6,12,0.82);
     text-align: center;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
   }
 
   .bottle-label span {
@@ -861,10 +864,11 @@
   .particle-layer-bg { z-index: 4; }
   .particle-layer-fg { z-index: 34; }
 
+  /* Each particle gets its own GPU compositor layer — transforms are applied on GPU
+     without triggering any layout or paint on the rest of the page */
   .particle {
     position: absolute;
     display: block;
-    filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
     will-change: transform;
   }
 
@@ -915,6 +919,7 @@
     pointer-events: auto;
   }
 
+  /* variant-card: removed backdrop-filter — it's inside the hero where animated content is composited */
   .variant-card {
     display: grid;
     justify-items: center;
@@ -923,11 +928,9 @@
     padding: 13px 12px;
     border: 1px solid var(--glass-border);
     border-radius: var(--r-lg);
-    background: rgba(255,255,255,0.06);
+    background: rgba(14, 10, 24, 0.9);
     color: var(--ink);
     text-align: center;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     transition: border-color var(--t-sm) ease, background var(--t-sm) ease, transform var(--t-sm) ease;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
