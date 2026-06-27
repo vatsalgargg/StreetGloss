@@ -818,90 +818,145 @@ document.addEventListener('keydown', e => {
 });
 
 /* ── Mouse tracking (desktop only) ───────── */
+
+// Particle state stored in plain objects — avoids expensive dataset string read/write every frame
+const particleState = [];
+const PARTICLE_DURATIONS = [5, 7, 6, 8, 5.5, 6.5, 9, 11, 10, 8.5];
+
+// Cache particle viewport positions once — eliminates getBoundingClientRect() from the RAF loop.
+// Only re-read on resize (debounced). This is the single biggest perf fix.
+function cacheParticlePositions() {
+  if (isMobile || isReduced) return;
+  particles.forEach((p, i) => {
+    // Temporarily zero out transform so we get the base CSS position, not the animated offset
+    const saved = p.style.transform;
+    p.style.transform = 'none';
+    const rect = p.getBoundingClientRect();
+    particleState[i] = particleState[i] || { rx: 0, ry: 0, angle: Math.random() * 360 };
+    particleState[i].baseCx = rect.left + rect.width  / 2;
+    particleState[i].baseCy = rect.top  + rect.height / 2;
+    p.style.transform = saved;
+  });
+}
+
 if (!isMobile && !isReduced) {
-  mouse.px = window.innerWidth / 2;
+  mouse.px = window.innerWidth  / 2;
   mouse.py = window.innerHeight / 2;
 
-  particles.forEach(p => {
-    p.dataset.rx    = '0';
-    p.dataset.ry    = '0';
-    p.dataset.angle = String(Math.random() * 360);
-    p.dataset.baseX = '0';
-    p.dataset.baseY = '0';
-  });
+  // Call once after layout settles
+  requestAnimationFrame(cacheParticlePositions);
 
+  // Re-cache on resize — debounced to avoid thrash
+  let _resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(cacheParticlePositions, 250);
+  }, { passive: true });
+
+  // Throttle mousemove through a RAF flag — prevents event-loop flooding
+  let _mousePending = false;
   window.addEventListener('mousemove', e => {
-    mouse.x  = e.clientX / window.innerWidth  - 0.5;
-    mouse.y  = e.clientY / window.innerHeight - 0.5;
     mouse.px = e.clientX;
     mouse.py = e.clientY;
+    if (!_mousePending) {
+      _mousePending = true;
+      requestAnimationFrame(() => {
+        mouse.x = mouse.px / window.innerWidth  - 0.5;
+        mouse.y = mouse.py / window.innerHeight - 0.5;
+        _mousePending = false;
+      });
+    }
   }, { passive: true });
+}
+
+/* ── Pause animation when page/hero not visible ── */
+let _heroVisible  = true;
+let _pageVisible  = !document.hidden;
+
+// Stop RAF when browser tab is backgrounded
+document.addEventListener('visibilitychange', () => {
+  _pageVisible = !document.hidden;
+  if (_pageVisible && !isMobile && !isReduced) {
+    // Re-cache positions since layout may have shifted
+    requestAnimationFrame(cacheParticlePositions);
+    if (!rafId) animate();
+  }
+});
+
+// Pause particle animation when hero scrolls out of view
+if (heroEl && !isMobile && !isReduced) {
+  new IntersectionObserver(
+    ([e]) => { _heroVisible = e.isIntersecting; },
+    { threshold: 0 }
+  ).observe(heroEl);
 }
 
 /* ── Animation loop ───────────────────────── */
 function animate() {
   rafId = requestAnimationFrame(animate);
-  if (isMobile || isReduced) return;
+
+  // Bail early — no work done on mobile, reduced-motion, hidden tabs, or when hero is off-screen
+  if (isMobile || isReduced || !_pageVisible) return;
 
   const time = Date.now() * 0.001;
 
   currentMouse.x += (mouse.x - currentMouse.x) * 0.05;
   currentMouse.y += (mouse.y - currentMouse.y) * 0.05;
 
-  if (heroProduct) {
+  // 3-D bottle tilt — single style write per frame, cheap
+  if (heroProduct && _heroVisible) {
     const ry = currentMouse.x * 34 + switchSpin;
     const rx = currentMouse.y * -16;
     heroProduct.style.transform = `rotateZ(-8deg) rotateY(${ry}deg) rotateX(${rx}deg)`;
   }
 
-  if (particlesFG) particlesFG.style.transform = `translate(${currentMouse.x * 50}px,${currentMouse.y * 50}px)`;
-  if (particlesBG) particlesBG.style.transform = `translate(${currentMouse.x * -22}px,${currentMouse.y * -22}px)`;
+  // Parallax layers — only when hero is visible
+  if (_heroVisible) {
+    if (particlesFG) particlesFG.style.transform = `translate(${currentMouse.x * 50}px,${currentMouse.y * 50}px)`;
+    if (particlesBG) particlesBG.style.transform = `translate(${currentMouse.x * -22}px,${currentMouse.y * -22}px)`;
+  }
 
-  if (!isSwitching) {
-    const durations = [5, 7, 6, 8, 5.5, 6.5, 9, 11, 10, 8.5];
+  // Particle orbits — only when hero visible and positions cached
+  if (!isSwitching && _heroVisible && particleState.length === particles.length) {
     particles.forEach((p, i) => {
-      const rect = p.getBoundingClientRect();
-      const px   = rect.left + rect.width  / 2;
-      const py   = rect.top  + rect.height / 2;
-      const dx   = mouse.px - px;
-      const dy   = mouse.py - py;
+      const ps = particleState[i];
+      if (!ps || ps.baseCx === undefined) return; // not yet cached
+
+      // Proximity calc uses cached positions — zero getBoundingClientRect() calls!
+      const dx   = mouse.px - ps.baseCx;
+      const dy   = mouse.py - ps.baseCy;
       const dist = Math.max(1, Math.hypot(dx, dy));
 
       let trx = 0, try_ = 0, speed = 1;
       if (dist < 340) {
-        const f = (340 - dist) / 340;
+        const f  = (340 - dist) / 340;
         trx   = (dx / dist) * f * -68;
         try_  = (dy / dist) * f * -68;
         speed = 1 + f * 4;
       }
 
-      let rx    = parseFloat(p.dataset.rx)    || 0;
-      let ry    = parseFloat(p.dataset.ry)    || 0;
-      let angle = parseFloat(p.dataset.angle) || 0;
-      const bx  = parseFloat(p.dataset.baseX) || 0;
-      const by  = parseFloat(p.dataset.baseY) || 0;
+      // Lerp in plain object — no string parsing, no dataset writes
+      ps.rx    += (trx   - ps.rx)    * 0.1;
+      ps.ry    += (try_  - ps.ry)    * 0.1;
+      ps.angle += 0.15 * speed;
 
-      rx    += (trx  - rx) * 0.1;
-      ry    += (try_ - ry) * 0.1;
-      angle += 0.15 * speed;
-
-      p.dataset.rx    = String(rx);
-      p.dataset.ry    = String(ry);
-      p.dataset.angle = String(angle);
-
-      const phase  = (time + i * 0.7) * ((Math.PI * 2) / durations[i % durations.length]);
+      const phase  = (time + i * 0.7) * ((Math.PI * 2) / PARTICLE_DURATIONS[i % PARTICLE_DURATIONS.length]);
       const floatY = Math.sin(phase) * 13;
       const floatA = Math.cos(phase) * 5;
 
-      p.style.transform = `translate(${rx + bx}px,${ry + by + floatY}px) rotate(${angle + floatA}deg)`;
+      // Single transform write per particle — GPU compositor handles it
+      p.style.transform = `translate(${ps.rx}px,${ps.ry + floatY}px) rotate(${ps.angle + floatA}deg)`;
     });
   }
 }
 
 /* ── Bubbles (desktop only) ───────────────── */
+// Spawn less frequently and limit max count to prevent DOM bloat
+const MAX_BUBBLES = 12;
 function spawnBubble() {
-  if (!bubblesContainer || isMobile) return;
-  const b = document.createElement('span');
+  if (!bubblesContainer || isMobile || !_pageVisible) return;
+  if (bubblesContainer.children.length >= MAX_BUBBLES) return;
+  const b   = document.createElement('span');
   b.className = 'bubble';
   const size = Math.random() * 20 + 7;
   const dur  = Math.random() * 6 + 4;
@@ -913,4 +968,5 @@ function spawnBubble() {
 /* ── Init ─────────────────────────────────── */
 updateCartUI();
 animate();
-if (!isMobile) setInterval(spawnBubble, 500);
+// Spawn bubbles at 1200ms (was 500ms) — reduces constant DOM mutations by 60%
+if (!isMobile) setInterval(spawnBubble, 1200);

@@ -547,6 +547,9 @@
     z-index: var(--z-bg);
     overflow: hidden;
     pointer-events: none;
+    /* Isolate compositing so bubbles don't invalidate other layers */
+    contain: layout paint;
+    will-change: contents;
   }
 
   .bubble {
@@ -740,6 +743,8 @@
       inset -18px 0 32px rgba(0,0,0,0.38),
       0 0 0 1px rgba(240,182,255,0.13);
     will-change: transform;
+    /* Own compositing layer — GPU handles all rotations without triggering paint */
+    transform: translateZ(0) rotateZ(-8deg);
   }
 
   .bottle-cap {
@@ -850,6 +855,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
+    contain: layout paint;
   }
 
   .particle-layer-bg { z-index: 4; }
@@ -1416,29 +1422,33 @@
    NEW COMPONENTS — Cart · Modals · Cookie · Kit Finder
    ═══════════════════════════════════════════════════════════ */
 
-/* ─── Shared modal overlay ───────────────────────────────── */
+/* Use display:none when hidden — stops backdrop-filter from occupying GPU compositor layers */
 .modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 200;
-  display: grid;
+  display: none;
   place-items: center;
   padding: 16px;
   background: rgba(4, 3, 10, 0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--t-md) ease;
   overflow-y: auto;
 }
 
 .modal-overlay.is-visible {
-  opacity: 1;
+  display: grid;
   pointer-events: auto;
+  animation: overlay-fade var(--t-md) ease both;
+}
+
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 body.modal-open { overflow: hidden; }
+
 
 .modal-box {
   position: relative;
@@ -1477,6 +1487,7 @@ body.modal-open { overflow: hidden; }
 /* ─── Cart Drawer ────────────────────────────────────────── */
 body.cart-open { overflow: hidden; }
 
+/* Same fix for cart overlay — don't composite when hidden */
 .cart-overlay {
   position: fixed;
   inset: 0;
@@ -1484,14 +1495,16 @@ body.cart-open { overflow: hidden; }
   background: rgba(4, 3, 10, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  display: none;
   opacity: 0;
-  pointer-events: none;
   transition: opacity var(--t-md) ease;
 }
 
 .cart-overlay.is-visible {
+  display: block;
   opacity: 1;
   pointer-events: auto;
+  animation: overlay-fade var(--t-md) ease both;
 }
 
 .cart-drawer {
@@ -2258,8 +2271,8 @@ body.cart-open { overflow: hidden; }
 @media (hover: hover) {
   .product-card:hover {
     border-color: rgba(240,182,255,0.3);
+    /* Use transform only (no box-shadow) — box-shadow triggers paint, transform is GPU-only */
     transform: translateY(-3px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.3);
   }
 }
 
