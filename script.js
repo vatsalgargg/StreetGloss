@@ -271,14 +271,22 @@ function renderCartItems() {
   });
 }
 
+const MAX_QTY = 5;
+
 function addToCart(productId, qty = 1) {
   const product = PRODUCTS[productId];
   if (!product) return;
   const existing = cart.find(i => i.id === productId);
   if (existing) {
-    existing.qty += qty;
+    const newQty = existing.qty + qty;
+    if (existing.qty >= MAX_QTY) {
+      showToast(`Max ${MAX_QTY} per item allowed`);
+      return;
+    }
+    existing.qty = Math.min(newQty, MAX_QTY);
+    if (newQty > MAX_QTY) showToast(`Capped at ${MAX_QTY} — that's the limit!`);
   } else {
-    cart.push({ id: productId, name: product.name, price: product.price, qty });
+    cart.push({ id: productId, name: product.name, price: product.price, qty: Math.min(qty, MAX_QTY) });
   }
   updateCartUI();
 }
@@ -286,6 +294,10 @@ function addToCart(productId, qty = 1) {
 function changeCartQty(productId, delta) {
   const item = cart.find(i => i.id === productId);
   if (!item) return;
+  if (delta > 0 && item.qty >= MAX_QTY) {
+    showToast(`Max ${MAX_QTY} per item allowed`);
+    return;
+  }
   item.qty += delta;
   if (item.qty <= 0) {
     cart = cart.filter(i => i.id !== productId);
@@ -493,7 +505,12 @@ document.getElementById('qty-minus')?.addEventListener('click', () => {
   if (modalQty > 1) { modalQty--; document.getElementById('modal-qty').textContent = modalQty; }
 });
 document.getElementById('qty-plus')?.addEventListener('click', () => {
-  if (modalQty < 10) { modalQty++; document.getElementById('modal-qty').textContent = modalQty; }
+  if (modalQty < MAX_QTY) {
+    modalQty++;
+    document.getElementById('modal-qty').textContent = modalQty;
+  } else {
+    showToast(`Max ${MAX_QTY} per item allowed`);
+  }
 });
 
 // Add from modal
