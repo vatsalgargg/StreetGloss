@@ -599,7 +599,7 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .button span {
+  .button .btn-badge {
     display: grid;
     place-items: center;
     width: 28px;
@@ -1183,6 +1183,10 @@
 /* ─── Utilities ──────────────────────────────────────────── */
 @layer utilities {
 
+  [hidden] {
+    display: none !important;
+  }
+
   /* Header CTA hidden on mobile — must live in utilities so it beats
      .button { display: inline-flex } from @layer components */
   .header-cta { display: none; }
@@ -1720,11 +1724,39 @@ body.cart-open { overflow: hidden; }
   font-size: 16px;
 }
 
-.cart-secure-note {
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 4px;
+.cart-secure-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--muted, #8b82a8);
+}
+
+.cart-secure-badge svg {
+  color: var(--success, #72f2b4);
+  flex-shrink: 0;
+}
+
+.checkout-secure-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--muted, #8b82a8);
+}
+
+.checkout-secure-badge svg {
+  color: var(--success, #72f2b4);
+  flex-shrink: 0;
+}
+
+.checkout-secure-badge strong {
+  color: var(--text, #f0eeff);
+  font-weight: 600;
 }
 
 /* ─── Success Modal ──────────────────────────────────────── */
