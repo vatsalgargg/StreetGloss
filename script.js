@@ -170,7 +170,15 @@ if (isMobile) {
 ════════════════════════════════════════════ */
 function loadCart() {
   try {
-    return JSON.parse(localStorage.getItem('sg-cart') || '[]');
+    const raw = JSON.parse(localStorage.getItem('sg-cart') || '[]');
+    return raw
+      .filter(item => item && item.id && PRODUCTS[item.id])
+      .map(item => ({
+        id: item.id,
+        name: PRODUCTS[item.id].name,
+        price: PRODUCTS[item.id].price,
+        qty: Math.min(Math.max(1, parseInt(item.qty) || 1), 10)
+      }));
   } catch { return []; }
 }
 
@@ -333,19 +341,215 @@ cartBtn?.addEventListener('click', openCart);
 document.getElementById('cart-close-btn')?.addEventListener('click', closeCart);
 cartOverlay?.addEventListener('click', closeCart);
 
-/* ── Checkout button ─────────────────────── */
+/* ══════════════════════════════════════════════
+   CHECKOUT — Real API Flow
+   ══════════════════════════════════════════════ */
+
+const API_BASE = 'https://streetgloss-api.radongamingg.workers.dev';
+
+/* ── Open / close checkout form modal ───────── */
+function openCheckoutModal() {
+  const total = getCartTotal();
+  // Update the order summary in the form (textContent only — no innerHTML)
+  const fmt = v => `₹${v.toLocaleString('en-IN')}`;
+  const sub = document.getElementById('cs-subtotal');
+  const tot = document.getElementById('cs-total');
+  const amt = document.getElementById('checkout-pay-amount');
+  if (sub) sub.textContent = fmt(total);
+  if (tot) tot.textContent = fmt(total);
+  if (amt) amt.textContent = fmt(total);
+
+  const overlay = document.getElementById('checkout-overlay');
+  overlay?.setAttribute('aria-hidden', 'false');
+  overlay?.classList.add('is-visible');
+  body.classList.add('modal-open');
+  document.getElementById('cf-name')?.focus();
+}
+
+function closeCheckoutModal() {
+  const overlay = document.getElementById('checkout-overlay');
+  overlay?.setAttribute('aria-hidden', 'true');
+  overlay?.classList.remove('is-visible');
+  body.classList.remove('modal-open');
+  setCheckoutLoading(false);
+  clearCheckoutErrors();
+}
+
 document.getElementById('checkout-btn')?.addEventListener('click', () => {
   if (cart.length === 0) return;
   closeCart();
-  const overlay = document.getElementById('checkout-success-overlay');
-  const orderNum = document.getElementById('order-num');
-  if (orderNum) orderNum.textContent = Math.floor(100000 + Math.random() * 900000);
-  overlay?.setAttribute('aria-hidden', 'false');
-  overlay?.classList.add('is-visible');
-  cart = [];
-  updateCartUI();
+  openCheckoutModal();
 });
 
+document.getElementById('checkout-modal-close')?.addEventListener('click', closeCheckoutModal);
+document.getElementById('checkout-overlay')?.addEventListener('click', e => {
+  if (e.target === document.getElementById('checkout-overlay')) closeCheckoutModal();
+});
+
+/* ── Field validation helpers ────────────────── */
+function setFieldError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;   // textContent only — SECURITY.md §7.4
+}
+
+function clearCheckoutErrors() {
+  ['err-name','err-phone','err-email','err-address','err-city','err-pincode','err-state','err-global']
+    .forEach(id => setFieldError(id, ''));
+}
+
+function validateCheckoutForm() {
+  clearCheckoutErrors();
+  let valid = true;
+
+  const name    = document.getElementById('cf-name')?.value.trim() || '';
+  const phone   = document.getElementById('cf-phone')?.value.trim() || '';
+  const email   = document.getElementById('cf-email')?.value.trim() || '';
+  const address = document.getElementById('cf-address')?.value.trim() || '';
+  const city    = document.getElementById('cf-city')?.value.trim() || '';
+  const pincode = document.getElementById('cf-pincode')?.value.trim() || '';
+  const state   = document.getElementById('cf-state')?.value || '';
+
+  if (!name)                           { setFieldError('err-name',    'Name is required');         valid = false; }
+  if (!/^\d{10}$/.test(phone))         { setFieldError('err-phone',   'Enter 10-digit phone');      valid = false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { setFieldError('err-email', 'Valid email required'); valid = false; }
+  if (!address)                        { setFieldError('err-address',  'Address is required');       valid = false; }
+  if (!city)                           { setFieldError('err-city',     'City is required');           valid = false; }
+  if (!/^\d{6}$/.test(pincode))        { setFieldError('err-pincode',  'Enter 6-digit pincode');     valid = false; }
+  if (!state)                          { setFieldError('err-state',    'Please select a state');     valid = false; }
+
+  return valid ? { name, phone, email, address_line1: address, address_city: city, address_pincode: pincode, address_state: state } : null;
+}
+
+/* ── Loading state ───────────────────────────── */
+function setCheckoutLoading(on) {
+  const btn     = document.getElementById('checkout-pay-btn');
+  const label   = document.getElementById('checkout-pay-label');
+  const spinner = document.getElementById('checkout-pay-spinner');
+  if (btn)     btn.disabled = on;
+  if (label)   label.hidden = on;
+  if (spinner) spinner.hidden = !on;
+}
+
+/* ── Razorpay script loader ──────────────────── */
+function loadRazorpay() {
+  return new Promise(resolve => {
+    if (window.Razorpay) return resolve(true);
+    const s = document.createElement('script');
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.body.appendChild(s);
+  });
+}
+
+/* ── Show success modal ──────────────────────── */
+function showOrderSuccess(orderNumber) {
+  // Use textContent — never innerHTML for user/API data (SECURITY.md §7.4)
+  const numEl = document.getElementById('order-num-display');
+  if (numEl) numEl.textContent = orderNumber;
+
+  const trackLink = document.getElementById('track-order-link');
+  if (trackLink) trackLink.href = `track.html`;
+
+  const overlay = document.getElementById('checkout-success-overlay');
+  overlay?.setAttribute('aria-hidden', 'false');
+  overlay?.classList.add('is-visible');
+}
+
+/* ── Main checkout form submit ───────────────── */
+document.getElementById('checkout-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const customer = validateCheckoutForm();
+  if (!customer) return;
+
+  setCheckoutLoading(true);
+  setFieldError('err-global', '');
+
+  try {
+    // Load Razorpay SDK (only when needed)
+    const rzpLoaded = await loadRazorpay();
+    if (!rzpLoaded) {
+      setFieldError('err-global', 'Could not load payment gateway. Please try again.');
+      setCheckoutLoading(false);
+      return;
+    }
+
+    // Step 1: Create order on our Worker
+    const createRes = await fetch(`${API_BASE}/api/create-order`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ items: cart, customer }),
+    });
+
+    const createData = await createRes.json();
+    if (!createRes.ok) {
+      setFieldError('err-global', createData.error || 'Could not create order. Please try again.');
+      setCheckoutLoading(false);
+      return;
+    }
+
+    // Step 2: Open Razorpay payment sheet
+    const rzp = new window.Razorpay({
+      key:         createData.key_id,
+      amount:      createData.amount,
+      currency:    'INR',
+      order_id:    createData.razorpay_order_id,
+      name:        'StreetGloss',
+      description: 'Premium Car Care',
+      prefill: {
+        name:    customer.name,
+        email:   customer.email,
+        contact: customer.phone,
+      },
+      theme: { color: '#7c3aed' },
+
+      handler: async function(response) {
+        // Step 3: Verify payment on our Worker
+        try {
+          const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_signature:  response.razorpay_signature,
+              customer,
+              items:    createData.items,
+              subtotal: createData.amount,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            cart = [];
+            updateCartUI();
+            closeCheckoutModal();
+            showOrderSuccess(verifyData.order_number);
+          } else {
+            setFieldError('err-global', verifyData.error || 'Payment verification failed.');
+            setCheckoutLoading(false);
+          }
+        } catch {
+          setFieldError('err-global', 'Network error. Contact us with your payment ID.');
+          setCheckoutLoading(false);
+        }
+      },
+
+      modal: {
+        ondismiss: () => setCheckoutLoading(false),
+      },
+    });
+
+    rzp.open();
+
+  } catch {
+    setFieldError('err-global', 'Something went wrong. Please try again.');
+    setCheckoutLoading(false);
+  }
+});
+
+/* ── Success modal close ─────────────────────── */
 document.getElementById('checkout-success-close')?.addEventListener('click', () => {
   const overlay = document.getElementById('checkout-success-overlay');
   overlay?.setAttribute('aria-hidden', 'true');
@@ -625,8 +829,18 @@ document.getElementById('contact-subject')?.addEventListener('change', e => {
 // Contact form submit
 document.getElementById('contact-form')?.addEventListener('submit', e => {
   e.preventDefault();
+  const form = e.target;
   const note = document.getElementById('contact-form-note');
   const btn  = document.getElementById('contact-submit');
+
+  if (!form.checkValidity()) {
+    if (note) {
+      note.textContent = '❌ Please fill out all required fields correctly.';
+      note.style.color = '#f87171';
+    }
+    return;
+  }
+
   if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
   setTimeout(() => {
     if (note) {
@@ -634,8 +848,9 @@ document.getElementById('contact-form')?.addEventListener('submit', e => {
       note.style.color = 'var(--success)';
     }
     if (btn) { btn.textContent = 'Send Message →'; btn.disabled = false; }
-    document.getElementById('contact-form')?.reset();
-    document.getElementById('bug-details-label').style.display = 'none';
+    form.reset();
+    const bugDetails = document.getElementById('bug-details-label');
+    if (bugDetails) bugDetails.style.display = 'none';
     setTimeout(() => { if (note) note.textContent = ''; }, 5000);
   }, 1200);
 });
@@ -815,11 +1030,54 @@ function renderKitStep() {
 }
 
 /* ── Newsletter ───────────────────────────── */
-newsletter?.addEventListener('submit', e => {
+newsletter?.addEventListener('submit', async e => {
   e.preventDefault();
   const note = newsletter.querySelector('.form-note');
-  if (note) note.textContent = "You're on the StreetGloss list! 🎉";
-  newsletter.reset();
+  const emailInput = document.getElementById('newsletter-email');
+  const email = emailInput?.value.trim() || '';
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    if (note) {
+      note.textContent = '❌ Please enter a valid email address';
+      note.style.color = '#f87171';
+    }
+    return;
+  }
+
+  const btn = newsletter.querySelector('button[type="submit"]');
+  if (btn) btn.disabled = true;
+  if (note) {
+    note.textContent = 'Subscribing…';
+    note.style.color = 'var(--muted)';
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      if (note) {
+        note.textContent = '🎉 ' + data.message;
+        note.style.color = '#4ade80';
+      }
+      newsletter.reset();
+    } else {
+      if (note) {
+        note.textContent = '❌ ' + (data.error || 'Subscription failed. Please try again.');
+        note.style.color = '#f87171';
+      }
+    }
+  } catch {
+    if (note) {
+      note.textContent = '❌ Connection error. Please try again later.';
+      note.style.color = '#f87171';
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 });
 
 /* ── Global ESC key ───────────────────────── */

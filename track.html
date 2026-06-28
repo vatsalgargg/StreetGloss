@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0810" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://streetgloss-api.radongamingg.workers.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
+  <title>Track Your Order | StreetGloss</title>
+  <meta name="description" content="Track your StreetGloss order in real time. Enter your order number and email to see live delivery status." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Inter:wght@400;500;700;800&display=optional" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0810;
+      --surface:   #14101f;
+      --surface2:  #1e1830;
+      --border:    #2a2240;
+      --purple:    #7c3aed;
+      --purple-lt: #a855f7;
+      --text:      #f0eeff;
+      --muted:     #8b82a8;
+      --green:     #22c55e;
+      --radius:    14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ───────────────────────────────── */
+    .track-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .track-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 1.2rem;
+    }
+    .track-brand-mark {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-lt));
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #fff;
+    }
+    .track-back {
+      margin-left: auto;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .track-back:hover { color: var(--text); }
+
+    /* ── Main layout ──────────────────────────── */
+    .track-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 64px;
+    }
+
+    .track-hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .track-hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff 40%, var(--purple-lt));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+    .track-hero p { color: var(--muted); font-size: 1rem; }
+
+    /* ── Search card ──────────────────────────── */
+    .track-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 32px;
+    }
+
+    .track-field { margin-bottom: 18px; }
+    .track-field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .track-field input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .track-field input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+    }
+    .track-field input::placeholder { color: var(--muted); }
+
+    .track-error {
+      color: #f87171;
+      font-size: 0.82rem;
+      margin-top: 6px;
+      min-height: 1.2em;
+    }
+
+    .btn-track {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-lt));
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+    .btn-track:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn-track:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Result card ──────────────────────────── */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 560px;
+      overflow: hidden;
+      animation: fadeUp 0.35s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .result-order-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--purple-lt);
+    }
+    .result-name { color: var(--muted); font-size: 0.875rem; margin-top: 2px; }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .status-paid        { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .status-processing  { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .status-shipped     { background: rgba(99,102,241,0.15); color: #818cf8; }
+    .status-delivered   { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .status-pending     { background: rgba(156,163,175,0.15);color: #9ca3af; }
+    .status-rto         { background: rgba(248,113,113,0.15);color: #f87171; }
+    .status-cancelled   { background: rgba(248,113,113,0.15);color: #f87171; }
+
+    /* ── Timeline ─────────────────────────────── */
+    .timeline { padding: 24px; }
+    .timeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      position: relative;
+      padding-bottom: 28px;
+    }
+    .timeline-step:last-child { padding-bottom: 0; }
+    .timeline-step:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+    .timeline-step.done::before { background: var(--purple); }
+
+    .step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      z-index: 1;
+      transition: all 0.3s;
+    }
+    .done .step-icon {
+      border-color: var(--purple);
+      background: rgba(124,58,237,0.2);
+    }
+    .active .step-icon {
+      border-color: var(--purple-lt);
+      background: rgba(168,85,247,0.25);
+      box-shadow: 0 0 0 4px rgba(168,85,247,0.15);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 4px rgba(168,85,247,0.15); }
+      50%      { box-shadow: 0 0 0 8px rgba(168,85,247,0.05); }
+    }
+
+    .step-content { padding-top: 4px; }
+    .step-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .done .step-label, .active .step-label { color: var(--text); }
+    .pending-step .step-label { color: var(--muted); }
+    .step-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Tracking info ────────────────────────── */
+    .tracking-info {
+      margin: 0 24px 24px;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .tracking-info-text { font-size: 0.85rem; }
+    .tracking-courier { font-weight: 700; }
+    .tracking-id { color: var(--muted); margin-top: 2px; font-size: 0.8rem; }
+    .tracking-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-lt));
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .tracking-link:hover { opacity: 0.85; }
+
+    /* ── Items list ───────────────────────────── */
+    .items-section {
+      border-top: 1px solid var(--border);
+      padding: 20px 24px;
+    }
+    .items-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .item-row:last-child { border-bottom: none; }
+    .item-name { font-weight: 600; font-size: 0.9rem; }
+    .item-qty  { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+    .item-price { font-weight: 700; color: var(--purple-lt); }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
+      font-weight: 700;
+    }
+    .total-amount { color: var(--purple-lt); font-size: 1.1rem; }
+
+    /* ── Loading / empty states ───────────────── */
+    .track-spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 32px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .track-empty {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+    }
+    .track-empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ── Footer ───────────────────────────────── */
+    .track-footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+    .track-footer a { color: var(--purple-lt); text-decoration: none; }
+
+    @media (max-width: 480px) {
+      .track-card, .result-card { border-radius: 0; border-left: none; border-right: none; }
+      .track-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="track-header">
+    <a href="index.html" class="track-brand" aria-label="StreetGloss home">
+      <div class="track-brand-mark">SG</div>
+      <span>StreetGloss</span>
+    </a>
+    <a href="index.html" class="track-back">← Back to Shop</a>
+  </header>
+
+  <!-- Main -->
+  <main class="track-main">
+
+    <div class="track-hero">
+      <h1>Track Your Order</h1>
+      <p>Enter your order number and email to see live delivery status</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="track-card">
+      <form id="track-form" novalidate>
+        <div class="track-field">
+          <label for="t-order">Order Number</label>
+          <input type="text" id="t-order" placeholder="SG-482910" maxlength="20" autocomplete="off" required />
+        </div>
+        <div class="track-field">
+          <label for="t-email">Email Address</label>
+          <input type="email" id="t-email" placeholder="you@email.com" maxlength="100" autocomplete="email" required />
+        </div>
+        <p class="track-error" id="track-error" role="alert"></p>
+        <button type="submit" class="btn-track" id="track-btn">Track Order</button>
+      </form>
+    </div>
+
+    <!-- Result (shown after search) -->
+    <div id="track-result" hidden></div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="track-footer">
+    <p>© 2026 StreetGloss · <a href="index.html">Shop</a></p>
+  </footer>
+
+<script>
+'use strict';
+
+const API_BASE = 'https://streetgloss-api.radongamingg.workers.dev';
+
+// Status config — display label, icon, and CSS class for each status
+const STATUS_CONFIG = {
+  pending:    { label: 'Pending',         icon: '🕐', cls: 'status-pending'   },
+  paid:       { label: 'Confirmed',       icon: '✅', cls: 'status-paid'      },
+  processing: { label: 'Processing',      icon: '📦', cls: 'status-processing' },
+  shipped:    { label: 'Shipped',         icon: '🚚', cls: 'status-shipped'    },
+  delivered:  { label: 'Delivered',       icon: '🎉', cls: 'status-delivered'  },
+  rto:        { label: 'Return Initiated',icon: '↩️', cls: 'status-rto'        },
+  cancelled:  { label: 'Cancelled',       icon: '❌', cls: 'status-cancelled'  },
+};
+
+// Timeline steps in order
+const STEPS = [
+  { key: 'placed',     label: 'Order Placed',        icon: '📋', sub: 'Order received and confirmed'       },
+  { key: 'paid',       label: 'Payment Confirmed',    icon: '💳', sub: 'Payment successfully processed'     },
+  { key: 'processing', label: 'Processing',           icon: '📦', sub: 'Your order is being prepared'       },
+  { key: 'shipped',    label: 'Shipped',              icon: '🚚', sub: 'On the way to your address'         },
+  { key: 'delivered',  label: 'Delivered',            icon: '🎉', sub: 'Order delivered successfully'       },
+];
+
+// Which DB statuses count as "reached" for each step
+const STEP_REACHED = {
+  placed:     ['paid','processing','shipped','delivered'],
+  paid:       ['paid','processing','shipped','delivered'],
+  processing: ['processing','shipped','delivered'],
+  shipped:    ['shipped','delivered'],
+  delivered:  ['delivered'],
+};
+
+function formatPrice(paise) {
+  const n = Number(paise);
+  if (!Number.isFinite(n)) return '₹—';
+  return '₹' + (n / 100).toLocaleString('en-IN');
+}
+
+function escText(str) {
+  if (typeof str !== 'string') return '';
+  // Safe DOM-based HTML escaping — sets as textContent, reads as innerHTML
+  // This escapes &, <, >, ", ' preventing XSS (SECURITY.md §7.4)
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// Safe URL validator — ONLY allows https:// links in href attributes.
+// Prevents javascript: protocol XSS and open redirect vulnerabilities.
+// (SECURITY.md §7.4, Open Redirect prevention)
+function safeHref(url) {
+  if (typeof url !== 'string') return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:') return null;  // block javascript:, data:, http:, etc.
+    return parsed.href;                              // return fully-parsed, normalised URL
+  } catch {
+    return null;  // invalid URL — reject it
+  }
+}
+
+function setError(msg) {
+  // textContent only — never innerHTML with user input (SECURITY.md §7.4)
+  const el = document.getElementById('track-error');
+  if (el) el.textContent = msg;
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('track-btn');
+  if (btn) {
+    btn.disabled = on;
+    btn.textContent = on ? 'Searching…' : 'Track Order';
+  }
+}
+
+function getStepState(stepKey, orderStatus) {
+  if (STEP_REACHED[stepKey]?.includes(orderStatus)) return 'done';
+  // Active = the next step after the last done step
+  const doneSteps = STEPS.filter(s => STEP_REACHED[s.key]?.includes(orderStatus));
+  const lastDoneIndex = doneSteps.length > 0 ? STEPS.findIndex(s => s.key === doneSteps[doneSteps.length - 1].key) : -1;
+  const thisIndex = STEPS.findIndex(s => s.key === stepKey);
+  if (thisIndex === lastDoneIndex + 1 && orderStatus !== 'delivered') return 'active';
+  return 'pending-step';
+}
+
+function renderResult(data) {
+  const result = document.getElementById('track-result');
+  const status = data.status || 'pending';
+  const statusCfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
+
+  // Build timeline HTML
+  const timelineHTML = STEPS.map(step => {
+    const state = getStepState(step.key, status);
+    return `
+      <div class="timeline-step ${state}">
+        <div class="step-icon" aria-hidden="true">${step.icon}</div>
+        <div class="step-content">
+          <div class="step-label">${step.label}</div>
+          <div class="step-sub">${state === 'done' || state === 'active' ? step.sub : 'Waiting…'}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Tracking info block (only if shipped)
+  // safeHref() validates URL is https:// before using in href — prevents XSS (SECURITY.md §7.4)
+  const safeTrackUrl = data.tracking_url ? safeHref(data.tracking_url) : null;
+  const trackingHTML = data.tracking_id ? `
+    <div class="tracking-info">
+      <div class="tracking-info-text">
+        <div class="tracking-courier">${escText(data.courier_name || 'Courier')}</div>
+        <div class="tracking-id">Tracking: ${escText(data.tracking_id)}</div>
+      </div>
+      ${safeTrackUrl
+        ? `<a href="${safeTrackUrl}" target="_blank" rel="noopener noreferrer" class="tracking-link">Track Live →</a>`
+        : ''}
+    </div>` : '';
+
+  // Items list
+  let items = [];
+  try { items = Array.isArray(data.items) ? data.items : JSON.parse(data.items || '[]'); } catch { items = []; }
+
+  const itemsHTML = items.map(item => `
+    <div class="item-row">
+      <div>
+        <div class="item-name">${escText(item.name)}</div>
+        <div class="item-qty">Qty: ${escText(String(item.qty))}</div>
+      </div>
+      <div class="item-price">${formatPrice(item.price * item.qty)}</div>
+    </div>`).join('');
+
+  // Build the full result card
+  // NOTE: All user data goes through escText() before insertion — SECURITY.md §7.4
+  result.innerHTML = `
+    <div class="result-card">
+      <div class="result-header">
+        <div>
+          <div class="result-order-num">${escText(data.order_number)}</div>
+          <div class="result-name">${escText(data.customer_name)}</div>
+        </div>
+        <span class="status-badge ${statusCfg.cls}">${statusCfg.icon} ${statusCfg.label}</span>
+      </div>
+
+      <div class="timeline">${timelineHTML}</div>
+
+      ${trackingHTML}
+
+      ${items.length > 0 ? `
+        <div class="items-section">
+          <div class="items-title">Items Ordered</div>
+          ${itemsHTML}
+        </div>
+        <div class="total-row">
+          <span>Total Paid</span>
+          <span class="total-amount">${formatPrice(data.subtotal)}</span>
+        </div>` : ''}
+    </div>`;
+
+  result.hidden = false;
+  result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Form submit ────────────────────────────────────────────────────────────
+document.getElementById('track-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  setError('');
+
+  const orderRaw = (document.getElementById('t-order')?.value || '').trim().toUpperCase();
+  const emailRaw = (document.getElementById('t-email')?.value || '').trim().toLowerCase();
+
+  // Client-side validation (mirrors server)
+  if (!orderRaw) { setError('Please enter your order number'); return; }
+  if (!/^SG-\d{6}$/.test(orderRaw)) { setError('Order number format: SG-XXXXXX'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailRaw)) { setError('Please enter a valid email'); return; }
+
+  setLoading(true);
+  document.getElementById('track-result').hidden = true;
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/track?order=${encodeURIComponent(orderRaw)}&email=${encodeURIComponent(emailRaw)}`
+    );
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || 'Order not found. Check your order number and email.');
+    } else {
+      renderResult(data);
+    }
+  } catch {
+    setError('Could not connect. Please check your internet and try again.');
+  } finally {
+    setLoading(false);
+  }
+});
+
+// Pre-fill from URL params (e.g. from email tracking link: track.html?order=SG-123&email=x@y.com)
+(function prefillFromURL() {
+  const p = new URLSearchParams(window.location.search);
+  const order = p.get('order');
+  const email = p.get('email');
+  if (order) {
+    const el = document.getElementById('t-order');
+    if (el) el.value = order.toUpperCase().slice(0, 20);
+  }
+  if (email) {
+    const el = document.getElementById('t-email');
+    if (el) el.value = email.toLowerCase().slice(0, 100);
+  }
+  // Auto-submit if both params present
+  if (order && email) {
+    document.getElementById('track-form').requestSubmit();
+  }
+})();
+</script>
+</body>
+</html>
