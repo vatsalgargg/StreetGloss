@@ -1221,16 +1221,17 @@ function animate() {
       if (!ps || ps.baseCx === undefined) return; // not yet cached
 
       // Proximity calc uses cached positions — zero getBoundingClientRect() calls!
-      const dx   = mouse.px - ps.baseCx;
-      const dy   = mouse.py - ps.baseCy;
-      const dist = Math.max(1, Math.hypot(dx, dy));
+      const dx     = mouse.px - ps.baseCx;
+      const dy     = mouse.py - ps.baseCy;
+      const distSq = dx * dx + dy * dy;
 
       let trx = 0, try_ = 0, speed = 1;
-      if (dist < 340) {
-        const f  = (340 - dist) / 340;
-        trx   = (dx / dist) * f * -68;
-        try_  = (dy / dist) * f * -68;
-        speed = 1 + f * 4;
+      if (distSq < 115600) { // 340px squared
+        const dist = Math.sqrt(distSq) || 1;
+        const f    = (340 - dist) / 340;
+        trx        = (dx / dist) * f * -68;
+        try_       = (dy / dist) * f * -68;
+        speed      = 1 + f * 4;
       }
 
       // Lerp in plain object — no string parsing, no dataset writes
