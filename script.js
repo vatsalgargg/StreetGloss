@@ -749,24 +749,21 @@ function switchTheme(theme) {
   };
 
   if (window.gsap && !isReduced && !isMobile) {
-    const obj = { val: 0, blur: 0 };
+    const obj = { val: 0 };
     gsap.to(obj, {
-      val: 360, blur: 10, duration: 0.38, ease: 'power2.in',
+      val: 360, duration: 0.38, ease: 'power2.in',
       onUpdate() {
         switchSpin = obj.val;
-        if (heroProduct) heroProduct.style.filter = `drop-shadow(0 38px 48px rgba(0,0,0,0.44)) blur(${obj.blur}px)`;
       },
       onComplete() {
         applyTheme();
         gsap.to(obj, {
-          val: 720, blur: 0, duration: 0.95, ease: 'back.out(0.75)',
+          val: 720, duration: 0.95, ease: 'back.out(0.75)',
           onUpdate() {
             switchSpin = obj.val;
-            if (heroProduct) heroProduct.style.filter = `drop-shadow(0 38px 48px rgba(0,0,0,0.44)) blur(${obj.blur}px)`;
           },
           onComplete() {
             switchSpin = 0;
-            if (heroProduct) heroProduct.style.filter = '';
             isSwitching = false;
           },
         });
@@ -1147,31 +1144,57 @@ if (!isMobile && !isReduced) {
 /* ── Pause animation when page/hero not visible ── */
 let _heroVisible  = true;
 let _pageVisible  = !document.hidden;
+let isRunning = false;
+
+function startAnimation() {
+  if (isMobile || isReduced || !_pageVisible || !_heroVisible) return;
+  if (!isRunning) {
+    isRunning = true;
+    animate();
+  }
+}
+
+function stopAnimation() {
+  if (isRunning) {
+    isRunning = false;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+}
 
 // Stop RAF when browser tab is backgrounded
 document.addEventListener('visibilitychange', () => {
   _pageVisible = !document.hidden;
-  if (_pageVisible && !isMobile && !isReduced) {
-    // Re-cache positions since layout may have shifted
-    requestAnimationFrame(cacheParticlePositions);
-    if (!rafId) animate();
+  if (_pageVisible) {
+    if (!isMobile && !isReduced) {
+      requestAnimationFrame(cacheParticlePositions);
+      startAnimation();
+    }
+  } else {
+    stopAnimation();
   }
 });
 
 // Pause particle animation when hero scrolls out of view
 if (heroEl && !isMobile && !isReduced) {
   new IntersectionObserver(
-    ([e]) => { _heroVisible = e.isIntersecting; },
+    ([e]) => {
+      _heroVisible = e.isIntersecting;
+      if (_heroVisible) {
+        startAnimation();
+      } else {
+        stopAnimation();
+      }
+    },
     { threshold: 0 }
   ).observe(heroEl);
 }
 
 /* ── Animation loop ───────────────────────── */
 function animate() {
-  rafId = requestAnimationFrame(animate);
-
-  // Bail early — no work done on mobile, reduced-motion, hidden tabs, or when hero is off-screen
-  if (isMobile || isReduced || !_pageVisible) return;
+  if (!isRunning) return;
 
   const time = Date.now() * 0.001;
 
@@ -1223,13 +1246,15 @@ function animate() {
       p.style.transform = `translate(${ps.rx}px,${ps.ry + floatY}px) rotate(${ps.angle + floatA}deg)`;
     });
   }
+
+  rafId = requestAnimationFrame(animate);
 }
 
 /* ── Bubbles (desktop only) ───────────────── */
 // Spawn less frequently and limit max count to prevent DOM bloat
 const MAX_BUBBLES = 12;
 function spawnBubble() {
-  if (!bubblesContainer || isMobile || !_pageVisible) return;
+  if (!bubblesContainer || isMobile || !_pageVisible || !_heroVisible) return;
   if (bubblesContainer.children.length >= MAX_BUBBLES) return;
   const b   = document.createElement('span');
   b.className = 'bubble';
@@ -1242,6 +1267,6 @@ function spawnBubble() {
 
 /* ── Init ─────────────────────────────────── */
 updateCartUI();
-animate();
+startAnimation();
 // Spawn bubbles at 1200ms (was 500ms) — reduces constant DOM mutations by 60%
 if (!isMobile) setInterval(spawnBubble, 1200);
