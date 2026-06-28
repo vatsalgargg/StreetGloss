@@ -49,3 +49,11 @@ coverage/
 .parcel-cache/
 tmp/
 temp/
+
+# ── Internal / Agent config (not for public) ──
+AGENTS.md
+SECURITY.md
+.agents/
+
+# ── Backend / Cloudflare Workers (never push — contains DB config) ──
+api/
