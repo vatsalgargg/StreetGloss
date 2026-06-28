@@ -748,7 +748,7 @@ function switchTheme(theme) {
     if (sub)   sub.textContent = isFoam ? 'Ceramic Infused / 200ml' : 'Universal Polish / 200ml';
   };
 
-  if (window.gsap && !isReduced && !isMobile) {
+  if (window.gsap && !isReduced) {
     const obj = { val: 0 };
     gsap.to(obj, {
       val: 360, duration: 0.38, ease: 'power2.in',
@@ -1145,9 +1145,16 @@ if (!isMobile && !isReduced) {
 let _heroVisible  = true;
 let _pageVisible  = !document.hidden;
 let isRunning = false;
+let scrollY = 0;
+
+if (isMobile) {
+  window.addEventListener('scroll', () => {
+    scrollY = window.scrollY;
+  }, { passive: true });
+}
 
 function startAnimation() {
-  if (isMobile || isReduced || !_pageVisible || !_heroVisible) return;
+  if (isReduced || !_pageVisible || !_heroVisible) return;
   if (!isRunning) {
     isRunning = true;
     animate();
@@ -1168,8 +1175,8 @@ function stopAnimation() {
 document.addEventListener('visibilitychange', () => {
   _pageVisible = !document.hidden;
   if (_pageVisible) {
-    if (!isMobile && !isReduced) {
-      requestAnimationFrame(cacheParticlePositions);
+    if (!isReduced) {
+      if (!isMobile) requestAnimationFrame(cacheParticlePositions);
       startAnimation();
     }
   } else {
@@ -1178,7 +1185,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // Pause particle animation when hero scrolls out of view
-if (heroEl && !isMobile && !isReduced) {
+if (heroEl && !isReduced) {
   new IntersectionObserver(
     ([e]) => {
       _heroVisible = e.isIntersecting;
@@ -1203,8 +1210,14 @@ function animate() {
 
   // 3-D bottle tilt — single style write per frame, cheap
   if (heroProduct && _heroVisible) {
-    const ry = currentMouse.x * 34 + switchSpin;
-    const rx = currentMouse.y * -16;
+    let ry, rx;
+    if (isMobile) {
+      ry = (scrollY * 0.06) + switchSpin;
+      rx = Math.sin(scrollY * 0.003) * 6;
+    } else {
+      ry = currentMouse.x * 34 + switchSpin;
+      rx = currentMouse.y * -16;
+    }
     heroProduct.style.transform = `rotateZ(-8deg) rotateY(${ry}deg) rotateX(${rx}deg)`;
   }
 

@@ -68,9 +68,9 @@
     --z-bg: 0;
     --z-content: 1;
     --z-backdrop: 70;
-    --z-header: 80;
-    --z-nav: 88;
-    --z-toast: 92;
+    --z-nav: 80;
+    --z-header: 90;
+    --z-toast: 100;
   }
 }
 
@@ -1435,16 +1435,18 @@
   inset: 0;
   z-index: 200;
   display: none;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   padding: 16px;
   background: rgba(4, 3, 10, 0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-overlay.is-visible {
-  display: grid;
+  display: flex;
   pointer-events: auto;
   animation: overlay-fade var(--t-md) ease both;
 }
@@ -1461,6 +1463,7 @@ body.modal-open { overflow: hidden; }
   position: relative;
   width: 100%;
   max-width: 540px;
+  margin: auto;
   border: 1px solid var(--glass-border);
   border-radius: var(--r-xl);
   background: #100c1c;
@@ -1569,6 +1572,7 @@ body.cart-open { overflow: hidden; }
 .cart-items {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
@@ -2503,5 +2507,79 @@ body.cart-open { overflow: hidden; }
   @media (max-width: 480px) {
     .checkout-modal-box { padding: 24px 18px; }
     .checkout-field-row { grid-template-columns: 1fr; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE VIEWPORT & SMOOTHNESS OPTIMIZATIONS (UNLAYERED OVERRIDES)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Prevent forced iOS Safari zooming on input focus */
+  .contact-form input,
+  .contact-form select,
+  .contact-form textarea,
+  .checkout-field input,
+  .checkout-field select,
+  .newsletter input {
+    font-size: 16px;
+  }
+
+  /* Optimize backdrop-filter for smooth transitions on mobile */
+  .modal-overlay {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background: rgba(4, 3, 10, 0.9);
+  }
+  .cart-overlay {
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    background: rgba(4, 3, 10, 0.8);
+  }
+
+  /* Safe area notches for bottom fixed elements */
+  .cookie-banner {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .cart-footer {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 640px) {
+  /* Turn product modal into a single scrollable container on mobile (no double scroll) */
+  .product-modal-info {
+    max-height: none;
+    overflow-y: visible;
+  }
+  .product-modal-box {
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  /* Center the modal nicely with margins and scroll within overlay */
+  .product-modal-inner {
+    grid-template-columns: 1fr;
+  }
+  .product-modal-visual {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Larger touch targets for close buttons, qty controls, and chips */
+  .modal-close {
+    width: 44px;
+    height: 44px;
+    top: 12px;
+    right: 12px;
+  }
+  .qty-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+  }
+  .chip {
+    min-height: 44px;
+    padding: 10px 20px;
   }
 }
