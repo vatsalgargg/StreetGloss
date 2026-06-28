@@ -2447,11 +2447,31 @@ body.cart-open { overflow: hidden; }
     justify-content: center;
     gap: 8px;
     min-height: 52px;
+    background: linear-gradient(135deg, var(--purple-2), var(--pink));
+    color: #0c0714;
+    border: none;
+    box-shadow: 0 8px 24px rgba(124, 60, 255, 0.4);
+    transition: all var(--t-sm) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .checkout-pay-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(124, 60, 255, 0.55);
+      background: linear-gradient(135deg, var(--purple-2), #f5c4ff);
+    }
+  }
+
+  .checkout-pay-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(124, 60, 255, 0.3);
   }
 
   .checkout-pay-btn:disabled {
     opacity: 0.65;
     cursor: not-allowed;
+    background: var(--muted);
+    color: var(--canvas);
   }
 
   /* Spinner animation for processing state */
@@ -2464,8 +2484,8 @@ body.cart-open { overflow: hidden; }
     content: '';
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
+    border: 2px solid rgba(12, 7, 20, 0.25);
+    border-top-color: #0c0714;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
     flex-shrink: 0;
