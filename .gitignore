@@ -54,6 +54,7 @@ temp/
 AGENTS.md
 SECURITY.md
 .agents/
+implementation_plan.md
 
 # ── Backend / Cloudflare Workers (never push — contains DB config) ──
 api/
