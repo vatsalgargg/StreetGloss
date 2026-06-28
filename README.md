@@ -21,12 +21,22 @@ A high-performance, mobile-first product landing page for **StreetGloss** — a 
 
 ## 🛠️ Tech Stack
 
-### Core
+### Frontend
 | Technology | Role |
 |---|---|
 | **HTML5** | Semantic structure, ARIA accessibility |
 | **Vanilla CSS** | All styling — zero frameworks, zero runtime overhead |
 | **Vanilla JavaScript** | All interactivity — no dependencies |
+| **Razorpay Web SDK** | Secure, client-side checkout & payment gateway overlay |
+
+### Backend (Edge API)
+| Technology / Service | Role |
+|---|---|
+| **Cloudflare Workers** | Globally distributed edge API router, handling order creation, verification, rate limiting, and webhooks |
+| **Cloudflare D1** | Serverless SQLite database storing order statuses, customer details, and newsletter subscribers |
+| **Cloudflare Access** | Zero-trust Google account login protection covering the `/admin` API |
+| **Resend API** | Transactional email delivery for order confirmations and shipping updates |
+| **Shiprocket API** | Automated courier assignment, shipping label generation, and tracking webhooks |
 
 ### CSS Architecture
 | Feature | Details |
@@ -35,8 +45,6 @@ A high-performance, mobile-first product landing page for **StreetGloss** — a 
 | **Mobile-first** | All base styles target phones; progressively enhanced at 480 / 768 / 1024 / 1280px |
 | **`clamp()`** | Every font size and spacing value scales fluidly across all screen sizes |
 | **CSS Custom Properties** | Full design token system (colours, spacing, radii, motion, z-index) |
-| **`@media (pointer: coarse)`** | Detects touch devices, disables expensive desktop effects |
-| **`@media (prefers-reduced-motion)`** | Respects user motion preferences — all animations disabled |
 | **`dvh` / `dvw` units** | Dynamic viewport units — no iOS address-bar jump bugs |
 | **`env(safe-area-inset-*)`** | Proper notch / home indicator padding on iPhone |
 
@@ -54,16 +62,13 @@ A high-performance, mobile-first product landing page for **StreetGloss** — a 
 | **Inter** (Google Fonts) | 400, 500, 700, 800 | Body text, buttons, UI labels |
 | `display=optional` | — | Prevents layout shift (CLS) on font load |
 
-### Performance Optimisations
+### Performance & Security Optimisations
+- **Revalidated LocalStorage Cart** — Re-checks item properties against hardcoded catalog on load to prevent price tempering.
+- **Strict Content Security Policy (CSP)** — Strictly locks script, frame, and network origins to self, Razorpay, and your Cloudflare Worker.
+- **XSS & Open Redirect Safeguards** — Custom DOM-based escaping and strict `https://` protocol validation for live tracking URLs.
 - **Particles removed from DOM on mobile** — zero RAF cost on touch devices
-- **Bubbles disabled on mobile** — no `setInterval` DOM mutations
 - **3D tilt disabled on mobile** — `mousemove` listener never attached
-- **`IntersectionObserver`** for header glass effect — no scroll event listener
-- **`will-change: transform`** only on animated elements
-- **`backdrop-filter`** with `-webkit-` prefix for full iOS Safari support
-- **`-webkit-overflow-scrolling: touch`** on scroll containers
 - **Passive event listeners** on all touch/scroll handlers
-- **`content-visibility: auto`** ready pattern on below-fold sections
 
 ### Mobile UX
 - **Slide-in drawer nav** with blur backdrop — tap outside to close
@@ -81,10 +86,16 @@ A high-performance, mobile-first product landing page for **StreetGloss** — a 
 
 ```
 StreetGloss/
-├── index.html        # Full page markup — semantic HTML5
+├── index.html        # Main landing page & variant details
+├── track.html        # Live order tracking page (timeline + shipping details)
 ├── styles.css        # Mobile-first CSS (CSS Layers architecture)
-├── script.js         # Vanilla JS — interactions + animations
-├── AGENTS.md         # AI agent configuration
+├── script.js         # Vanilla JS — interactions, cart & payment flow
+├── api/              # [Ignored] Cloudflare Workers backend folder (local only)
+│   ├── src/          # Worker source routes (create, verify, track, webhook)
+│   ├── schema.sql    # D1 SQLite table declarations
+│   └── wrangler.toml # Worker configuration and public variables
+├── AGENTS.md         # AI agent configuration (not pushed)
+├── SECURITY.md       # Security checklist (not pushed)
 └── README.md         # This file
 ```
 
@@ -132,10 +143,12 @@ Each product card has a unique colour identity:
 ## ✨ Key Features
 
 - 🍾 **3D CSS bottle** — fully drawn in CSS, mouse-tracked tilt on desktop
+- 💳 **Razorpay Payment Gateway** — Validates checkout form details client-side and triggers secure payment card/UPI overlay.
+- 🚚 **Live Order Tracking** —timeline tracking page displaying live delivery stages and courier details using encrypted D1 record pairs.
 - 🎨 **Live theme switch** — ceramic ↔ foam variant swaps background + bottle label with GSAP spin
 - 🔍 **Product filter** — chips filter the grid by category instantly
 - 🛒 **Add to Bag** — cart count + toast notification with ripple feedback
-- 📧 **Newsletter signup** — inline form with success state
+- 📧 **Newsletter signup** — API-wired subscription form saving emails directly to database
 - 💫 **Floating particles** — physics-based orbit with mouse repulsion (desktop)
 - 🫧 **Rising bubbles** — ambient background animation (desktop)
 - 🌓 **Scroll-aware header** — becomes frosted glass on scroll
