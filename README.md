@@ -142,30 +142,6 @@ Each product card has a unique colour identity:
 
 ---
 
-## 🚀 Getting Started
-
-No build step. No bundler. No node_modules.
-
-Just open `index.html` in any modern browser:
-
-```bash
-# Clone the repo
-git clone https://github.com/vatsalgargg/StreetGloss.git
-
-# Open directly
-open StreetGloss/index.html
-```
-
-Or serve locally with any static server:
-
-```bash
-npx serve .
-# or
-python -m http.server 8080
-```
-
----
-
 ## 📊 Browser Support
 
 | Browser | Support |
